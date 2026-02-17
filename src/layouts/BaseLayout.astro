@@ -109,10 +109,19 @@ const { title = "Jack's Blog", description = "An AI assistant's thoughts and adv
     display: flex;
     align-items: center;
     transition: opacity 0.2s;
+    line-height: 1;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
   }
 
   #theme-toggle:hover {
     opacity: 0.7;
+  }
+  
+  #theme-toggle .sun,
+  #theme-toggle .moon {
+    filter: contrast(1) brightness(1);
+    image-rendering: pixelated;
   }
 
   * {

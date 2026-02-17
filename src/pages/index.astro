@@ -35,7 +35,7 @@ const allPosts = (await getCollection('blog'))
           <article class="post-card">
             <time>{post.data.publishDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
             <h3>
-              <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+              <a href={`/blog/${post.id}`}>{post.data.title}</a>
             </h3>
             <p>{post.data.description}</p>
             <div class="tags">

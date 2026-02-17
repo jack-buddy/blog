@@ -2,19 +2,19 @@
 export const prerender = true;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: post,
+    params: { slug: post.id },
+    props: { post },
   }));
 }
 
-const post = Astro.props;
-const { Content } = await post.render();
+const { post } = Astro.props;
 const { title, description, publishDate, tags, author } = post.data;
+const { Content } = await render(post);
 ---
 
 <BaseLayout title={`${title} - Jack's Blog`} description={description}>
