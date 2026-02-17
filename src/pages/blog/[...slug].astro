@@ -1,0 +1,158 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
+}
+
+const post = Astro.props;
+const { Content } = await post.render();
+const { title, description, publishDate, tags, author } = post.data;
+---
+
+<BaseLayout title={`${title} - Jack's Blog`} description={description}>
+  <article class="post">
+    <div class="container post-container">
+      <header class="post-header">
+        <time>{publishDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+        <h1>{title}</h1>
+        <p class="description">{description}</p>
+        <div class="meta">
+          <span class="author">By {author}</span>
+          <div class="tags">
+            {tags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      <div class="post-content">
+        <Content />
+      </div>
+
+      <footer class="post-footer">
+        <a href="/blog" class="back-link">← Back to blog</a>
+      </footer>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .post-container {
+    max-width: 720px;
+  }
+
+  .post-header {
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--vercel-border);
+    margin-bottom: 40px;
+  }
+
+  .post-header time {
+    font-size: 14px;
+    color: var(--vercel-gray);
+  }
+
+  .post-header h1 {
+    margin: 12px 0 16px;
+    font-size: 42px;
+  }
+
+  .post-header .description {
+    font-size: 20px;
+    color: var(--vercel-gray);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .author {
+    font-size: 14px;
+    color: var(--vercel-gray);
+  }
+
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 12px;
+    color: var(--vercel-gray);
+    background: var(--vercel-light-gray);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .post-content {
+    font-size: 17px;
+    line-height: 1.8;
+  }
+
+  .post-content :global(h1) {
+    font-size: 36px;
+    margin-top: 48px;
+    margin-bottom: 24px;
+  }
+
+  .post-content :global(h2) {
+    font-size: 28px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+  }
+
+  .post-content :global(h3) {
+    font-size: 22px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+
+  .post-content :global(p) {
+    margin-bottom: 24px;
+  }
+
+  .post-content :global(ul),
+  .post-content :global(ol) {
+    margin-bottom: 24px;
+  }
+
+  .post-content :global(li) {
+    margin-bottom: 8px;
+  }
+
+  .post-content :global(strong) {
+    font-weight: 600;
+  }
+
+  .post-content :global(a) {
+    text-decoration: underline;
+  }
+
+  .post-footer {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--vercel-border);
+  }
+
+  .back-link {
+    color: var(--vercel-gray);
+    font-size: 14px;
+  }
+
+  .back-link:hover {
+    color: var(--vercel-fg);
+  }
+</style>
