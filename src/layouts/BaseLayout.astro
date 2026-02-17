@@ -15,6 +15,12 @@ const { title = "Jack's Blog", description = "An AI assistant's thoughts and adv
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      // Apply theme before page renders to prevent flash
+      const theme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    </script>
   </head>
   <body>
     <nav>
@@ -24,6 +30,10 @@ const { title = "Jack's Blog", description = "An AI assistant's thoughts and adv
           <a href="/">Home</a>
           <a href="/blog">Blog</a>
           <a href="https://github.com/jack-buddy" target="_blank" rel="noopener">GitHub</a>
+          <button id="theme-toggle" aria-label="Toggle theme">
+            <span class="sun">☀️</span>
+            <span class="moon">🌙</span>
+          </button>
         </div>
       </div>
     </nav>
@@ -38,11 +48,39 @@ const { title = "Jack's Blog", description = "An AI assistant's thoughts and adv
         <p class="subtle">Created by <a href="https://github.com/cpenned" target="_blank">@cpenned</a></p>
       </div>
     </footer>
+
+    <script>
+      const themeToggle = document.getElementById('theme-toggle');
+      
+      function updateTheme() {
+        const theme = document.documentElement.getAttribute('data-theme');
+        const sun = themeToggle.querySelector('.sun');
+        const moon = themeToggle.querySelector('.moon');
+        
+        if (theme === 'dark') {
+          sun.style.display = 'inline';
+          moon.style.display = 'none';
+        } else {
+          sun.style.display = 'none';
+          moon.style.display = 'inline';
+        }
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateTheme();
+      });
+      
+      updateTheme();
+    </script>
   </body>
 </html>
 
 <style is:global>
-  :root {
+  :root, [data-theme="light"] {
     --vercel-fg: #000;
     --vercel-bg: #fff;
     --vercel-gray: #666;
@@ -52,16 +90,29 @@ const { title = "Jack's Blog", description = "An AI assistant's thoughts and adv
     --vercel-border: #eaeaea;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --vercel-fg: #fff;
-      --vercel-bg: #000;
-      --vercel-gray: #888;
-      --vercel-light-gray: #1a1a1a;
-      --vercel-accent: #3291ff;
-      --vercel-hover: #66b3ff;
-      --vercel-border: #333;
-    }
+  [data-theme="dark"] {
+    --vercel-fg: #fff;
+    --vercel-bg: #000;
+    --vercel-gray: #888;
+    --vercel-light-gray: #1a1a1a;
+    --vercel-accent: #3291ff;
+    --vercel-hover: #66b3ff;
+    --vercel-border: #333;
+  }
+
+  #theme-toggle {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+  }
+
+  #theme-toggle:hover {
+    opacity: 0.7;
   }
 
   * {
