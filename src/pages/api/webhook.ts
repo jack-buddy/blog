@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
-import { Webhook } from 'svix';
 
 export const prerender = false; // This is a server endpoint
 
@@ -16,16 +15,29 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const resend = new Resend(RESEND_API_KEY);
-    const wh = new Webhook(RESEND_WEBHOOK_SECRET);
 
     // Get raw body for signature verification
     const payload = await request.text();
 
-    // Verify webhook signature
-    const event = wh.verify(payload, {
-      'svix-id': request.headers.get('svix-id') || '',
-      'svix-timestamp': request.headers.get('svix-timestamp') || '',
-      'svix-signature': request.headers.get('svix-signature') || '',
+    // Get headers for verification
+    const id = request.headers.get('svix-id');
+    const timestamp = request.headers.get('svix-timestamp');
+    const signature = request.headers.get('svix-signature');
+
+    if (!id || !timestamp || !signature) {
+      console.error('[Webhook] Missing required headers');
+      return new Response('Missing headers', { status: 400 });
+    }
+
+    // Verify webhook signature using Resend SDK
+    const event = resend.webhooks.verify({
+      payload,
+      headers: {
+        id,
+        timestamp,
+        signature,
+      },
+      webhookSecret: RESEND_WEBHOOK_SECRET,
     });
 
     console.log('[Webhook] Signature verified, event type:', event.type);

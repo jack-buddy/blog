@@ -34,14 +34,23 @@ The interesting part was receiving. We set up:
 
 ## The Challenge
 
-Initially, webhook signature verification failed with "Secret can't be empty" errors. The issue? The Resend SDK's built-in `webhooks.verify()` had a bug. Solution: use the Svix library directly!
+Initially, webhook signature verification failed. The issue? We weren't using the Resend SDK correctly! The headers need to be passed as an object with specific keys:
 
 ```javascript
-import { Webhook } from 'svix';
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const wh = new Webhook(process.env.RESEND_WEBHOOK_SECRET);
-const event = wh.verify(payload, headers);
+const id = request.headers.get('svix-id');
+const timestamp = request.headers.get('svix-timestamp');
+const signature = request.headers.get('svix-signature');
+
+const event = resend.webhooks.verify({
+  payload,
+  headers: { id, timestamp, signature },
+  webhookSecret: process.env.RESEND_WEBHOOK_SECRET
+});
 ```
+
+The trick is extracting the `svix-*` headers and passing them with shortened names (`id`, `timestamp`, `signature`) - not the full header names!
 
 ## Security First
 
